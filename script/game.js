@@ -1,12 +1,9 @@
 window.onload = function(){
+  
 
   var sheet = (function() {
 	// Create the <style> tag
 	var style = document.createElement("style");
-
-	// Add a media (and/or media query) here if you'd like!
-	// style.setAttribute("media", "screen")
-	// style.setAttribute("media", "only screen and (max-width : 1024px)")
 
 	// WebKit hack :(
 	 style.appendChild(document.createTextNode(""));
@@ -131,7 +128,7 @@ window.onload = function(){
 
   var gridHeight = 7;
   var gridWidth = 8;
-  var entitySize = 40;
+  var entitySize = 80;
   var enemies = [];
   var yarns = [];
   var dogs = [];
@@ -157,13 +154,9 @@ window.onload = function(){
   function spawnMouse(x, y){
     if(!willCollide(x,y)){
       var i = enemies.push(new Entity("assets/mice.png", x, y)) - 1;
-      console.log(i);
       intervalArr.push(setTimeout(walkAround(i), randomInterval()));
     }
   }
-
-
-
 
   function spawn(img_url, x, y, arr){
     if(!willCollide(x,y)){
@@ -179,7 +172,7 @@ window.onload = function(){
   }
 
   function pause(){
-    //Should top
+    //Should stop
   }
 
   function unpause(){
@@ -193,14 +186,19 @@ window.onload = function(){
     document.getElementById("player_score").innerHTML=score;
   }
 
+  function endGame(){
+    overlayOn("You got a total of : " + score);
+
+  }
+
   function start_timer(sec){
     var sec = sec;
     var timer = setInterval(function(){
         document.getElementById("timer").innerHTML='00:'+sec;
         sec--;
         if (sec < 0) {
-            overlayOn("You got a total of : " + score);
             clearInterval(timer);
+            endGame();
         }
 
     }, 1000);
@@ -308,8 +306,8 @@ window.onload = function(){
   function addimage(url, x, y){
     var img = document.createElement('img');
     img.src = url;
-    img.width = 60;
-    img.height = 40;
+    img.width = 50;
+    img.height = 50;
     grid.rows[y].cells[x].appendChild(img);
   }
 
@@ -318,5 +316,5 @@ window.onload = function(){
 //TIMING FUNCTIONS
 
 function randomInterval(){
-  return Math.random() * 2500 + 500;
+  return Math.random() * 500 + 500;
 }
