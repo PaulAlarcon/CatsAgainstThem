@@ -1,0 +1,13 @@
+{
+  "name": "CatVSHumans",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "jquery": "3.4.1",
+    "express": "4.13.3"
+  },
+  "author": "Paul Alarcon",
+  "license": "MIT"
+}
