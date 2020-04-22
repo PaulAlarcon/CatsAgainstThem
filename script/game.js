@@ -1,5 +1,6 @@
 window.onload = function(){
   
+  var player_name = getPlayerName();
 
   var sheet = (function() {
 	// Create the <style> tag
@@ -99,20 +100,25 @@ window.onload = function(){
         var key_state = (event.type == "keyup")?true:false;
         switch (event.keyCode) {
           case 37:
-          cat.moveleft();
+          if(gameIsRunning)
+            cat.moveleft();
             break;
           case 38:
-          cat.moveup();
+          if(gameIsRunning)
+            cat.moveup();
             break;
           case 39:
-          cat.moveright();
+          if(gameIsRunning)
+            cat.moveright();
             break;
           case 40:
-          cat.movedown();
+          if(gameIsRunning)
+            cat.movedown();
           break;
           case 32:
           if(!start){
             start = true;
+            gameIsRunning = true;
             startGame();
           }
           break;
@@ -140,10 +146,15 @@ window.onload = function(){
   var start = false;
   var pause = false;
   var cat = new Entity("assets/cat.png", 0, 0)
-  var gameTime = 60;
-  overlayOn("Welcome to the Game, Press SPACE to start");
+  var gameTime = 20;
+  overlayOn("Welcome to CATS AGAINST THEM! " + player_name + "<br>Press SPACE to start ");
   var controller = new Controller();
   var score = 0;
+  var spawnRandomlyInterval;
+
+  var gameIsRunning;
+
+  function restartEnemiesArrays(){}
 
   function spawnRandomly(){
     spawnMouse(Math.floor(Math.random() * gridWidth), Math.floor(Math.random() * gridHeight));
@@ -164,10 +175,10 @@ window.onload = function(){
     }
   }
 
-  function startGame(){
+  function startGame(player_name){
       overlayOff();
       addEnemies(numberoOfEnemies);
-      setInterval(spawnRandomly, 5000);
+      spawnRandomlyInterval = setInterval(spawnRandomly, 5000);
       start_timer(gameTime);
   }
 
@@ -187,14 +198,28 @@ window.onload = function(){
   }
 
   function endGame(){
-    overlayOn("You got a total of : " + score);
+    clearInterval(spawnRandomlyInterval);
+    for(var i = 0; i < enemies.length; i++){
+      clearInterval(intervalArr[i]); 
+    }
+    gameIsRunning = false;
+    start = false;
+    overlayOn("You got a total of : " + score + " points." + "<br>" +
+              "Press SPACE to START AGAIN"
+    );
 
   }
 
   function start_timer(sec){
     var sec = sec;
     var timer = setInterval(function(){
-        document.getElementById("timer").innerHTML='00:'+sec;
+        var time;
+        if(sec < 10)
+          time = '00:0'+sec;
+        else
+          time = '00:'+sec;
+
+        document.getElementById("timer").innerHTML= time;
         sec--;
         if (sec < 0) {
             clearInterval(timer);
@@ -203,6 +228,7 @@ window.onload = function(){
 
     }, 1000);
   }
+
 
   function removeEnemy(index, arr){
     if(arr[index] != undefined){
@@ -304,11 +330,14 @@ window.onload = function(){
 
 // GRAPHIC FUNCTIONS
   function addimage(url, x, y){
+    var div = document.createElement('div');
+    div.setAttribute('id', 'img-wrapper');
     var img = document.createElement('img');
     img.src = url;
     img.width = 50;
     img.height = 50;
-    grid.rows[y].cells[x].appendChild(img);
+    div.appendChild(img);
+    grid.rows[y].cells[x].appendChild(div);
   }
 
 }
