@@ -123,3 +123,10 @@ img{
   margin: 0;
 }
 
+
+
+#table-stats{
+  width: 100%;
+  border : 1px solid black;
+}
+

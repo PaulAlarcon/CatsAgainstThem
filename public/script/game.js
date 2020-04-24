@@ -1,6 +1,11 @@
 window.onload = function(){
   
-  var player_name = getPlayerName();
+  async function getPlayerName() {
+    let player = await fetch('/username').then(response => response.json())
+    return player;
+  } 
+  let player_name;
+  getPlayerName().then(r => player_name = r);
 
   class Entity{
     constructor(url, x, y){
@@ -105,12 +110,6 @@ window.onload = function(){
             startGame();
           }
           break;
-          // case 82:
-            // if(!game)
-            // gameIsRunning = true;
-            // console.log(grid.children);
-            
-          // break;
         }
     }
     window.addEventListener("keyup", () => {this.keyListener(event)})
@@ -127,14 +126,14 @@ window.onload = function(){
   var dogs;
   var intervalArr;
 
-  var maxyarns = 3;
-  var maxdogs = 3;
-  var maxmice = 10;
+  var maxyarns = 8;
+  var maxdogs = 8;
+  var maxmice = 22;
 
   var numberoOfEnemies;
 
   var grid = createGrid(gridHeight, gridWidth);
-  overlayOn("Welcome to CATS AGAINST THEM! " + player_name + "<br>Press SPACE to start ");
+  overlayOn("Welcome to CATS AGAINST THEM!<br><br> use the ARROW KEYS TO MOVE <br><br>Press SPACE to start");
 
   var start;
   var gameIsRunning;
@@ -148,8 +147,9 @@ window.onload = function(){
   var spawnMouseInterval;
 
 
-  var level = 1;
-  
+  var currentMice;
+  var currentYarns;
+  var currentDogs;
 
   
   function setUp(){
@@ -158,27 +158,19 @@ window.onload = function(){
     dogs = [];
     intervalArr = [];
     cat = new Entity("assets/cat.png", 0, 0)
-    gameTime = 20;
+    gameTime = 30;
     score = 0;
     addEnemies(numberoOfEnemies);
     spawnMouseInterval = setInterval(spawnMouseRandomly, randomInterval(3000, 1000))
     spawnYarnsInterval = setInterval(spawnYarnsRandomly, randomInterval(3000, 1000));
     spawnDogsInterval = setInterval(spawnDogsRandomly, randomInterval(3000, 1000))
     start_timer(gameTime);
+    document.getElementById("player_score").innerHTML=score;
+    currentMice = 0;
+    currentYarns = 0;
+    currentDogs = 0;
   }
 
-  function restart(){
-    enemies = [];
-    yarns = [];
-    dogs = [];
-    controller = new Controller();
-    gameTime = 20;
-    score = 0;
-    cat = new Entity("assets/cat.png", 0, 0)
-    addEnemies(numberoOfEnemies);
-    spawnRandomlyInterval = setInterval(spawnRandomly, 5000);
-    start_timer(gameTime);
-  }
 
   function removeAllEnemies(){
     for(var i=0; i < enemies.length; i++){
@@ -186,6 +178,7 @@ window.onload = function(){
     }
     for(var i=0; i < dogs.length; i++){
       removeEnemy(i, dogs);
+
     }
     for(var i=0; i < yarns.length; i++){
       removeEnemy(i, yarns)
@@ -195,11 +188,13 @@ window.onload = function(){
   function spawnYarnsRandomly(){
     if(yarns.length < maxyarns)
       spawn("assets/yarn.png", Math.floor(Math.random() * gridWidth), Math.floor(Math.random() * gridHeight), yarns);
+      currentYarns++;
   }
 
   function spawnDogsRandomly(){
     if(dogs.length < maxdogs)
       spawn("assets/dog.png", Math.floor(Math.random() * gridWidth), Math.floor(Math.random() * gridHeight), dogs);
+      currentDogs++;
   }
 
   function spawnMouseRandomly(){
@@ -211,6 +206,7 @@ window.onload = function(){
     if(!willCollide(x,y)){
       var i = enemies.push(new Entity("assets/mice.png", x, y)) - 1;
       intervalArr.push(setTimeout(walkAround(i), randomInterval(500, 500)));
+      currentMice++;
     }
   }
 
@@ -241,7 +237,7 @@ window.onload = function(){
     }
 
     grid.rows[cat.y].cells[cat.x].innerHTML = ""; //cleans the one where we moving
-    cat = undefined;
+    cat = undefined; 
 
     removeAllEnemies();
     gameIsRunning = false;
@@ -250,6 +246,7 @@ window.onload = function(){
               "Press SPACE to START AGAIN"
     );
 
+    postlog();
   }
 
   function start_timer(sec){
@@ -271,7 +268,6 @@ window.onload = function(){
     }, 1000);
   }
 
-
   function removeEnemy(index, arr){
     if(arr[index] != undefined){
       grid.rows[arr[index].y].cells[arr[index].x].innerHTML = ""; //cleans the one where we moving
@@ -286,6 +282,7 @@ window.onload = function(){
       grid.rows[enemies[index].y].cells[enemies[index].x].innerHTML = ""; //cleans the one where we moving
       enemies[index] = undefined;
       clearInterval(intervalArr[index]);
+      currentMice--;
       return true;
     }
     return false;
@@ -386,11 +383,12 @@ window.onload = function(){
     return Math.random() * max + min;
   }
 
+  function postlog(){
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/store_log", true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    var data = JSON.stringify({"player_score" : score})
+    xhr.send(data);
+  }
 }
 
-//implement Hole and then change position and numbers acc to level
-//@media to change according it 
-
-//logged in - one
-//boolean loggedin 
-//log in - two   ->> stop it, already logged in  
